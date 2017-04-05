@@ -1,8 +1,9 @@
 {
-  "version": "1.0.6",
+  "version": "1.0.7",
   "name": "components-manager",
   "typings": "src/index.ts",
   "scripts": {
+    "babel": "babel built --out-dir built",
     "prepublish": "tsc && babel built --out-dir built"
   },
   "bin": {
@@ -13,7 +14,7 @@
     "@types/node": "^7.0.12",
     "@types/semver": "^5.3.31",
     "babel-cli": "^6.24.0",
-    "babel-plugin-transform-es2015-parameters": "^6.23.0",
+    "babel-preset-es2015": "^6.24.0",
     "babel-preset-stage-0": "^6.22.0",
     "typescript": "^2.2.2"
   },
