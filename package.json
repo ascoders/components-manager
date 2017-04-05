@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "name": "components-manager",
+  "typings": "src/index.ts",
+  "scripts": {
+    "prepublish": "tsc"
+  },
+  "bin": {
+    "run-react": "built/src/index.js"
+  },
+  "devDependencies": {
+    "@types/colors": "^1.1.2",
+    "@types/node": "^7.0.12",
+    "typescript": "^2.2.2"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.61",
+    "colors": "^1.1.2",
+    "commander": "^2.9.0",
+    "format-json": "^1.0.3",
+    "lodash": "^4.17.4"
+  }
+}
