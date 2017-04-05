@@ -2,7 +2,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as formatJson from 'format-json'
 import walk from './utils/walk'
+import { isJsFile } from './utils/js-suffix'
 import * as colors from 'colors'
+import matchImportRequire from './utils/match-import-require'
 
 /**
  * 对所有组件依赖分析，并更新组件的 package.json
@@ -71,21 +73,19 @@ export default (managerConfig: ManagerConfig) => {
     const filePaths = walk(path.join(process.cwd(), config.path))
     filePaths.forEach(filePath => {
       // 只读取指定 js 后缀的文件
-      if (!['.js', 'es', '.jsx', '.ts', '.tsx'].some(suffix => filePath.endsWith(suffix))) {
+      if (!isJsFile(filePath)) {
         return
       }
 
       // 读取文件内容
       const fileContent = fs.readFileSync(filePath).toString()
 
-      const regex = /\bimport\s+(?:.+\s+from\s+)?[\'"]([^"\']+)["\']|require\([\'"]([^"\']+)["\']\)/g
-
       let match
-      while ((match = regex.exec(fileContent)) != null) {
-        const importPath = match[1] || match[2]
+      while ((match = matchImportRequire.exec(fileContent)) != null) {
+        const moduleName = match[2] || match[3]
         // 只处理非 ./ ../ 开头的
-        if (!importPath.startsWith('./') && !importPath.startsWith('../')) {
-          currentComponentDepSet.add(importPath)
+        if (!moduleName.startsWith('./') && !moduleName.startsWith('../')) {
+          currentComponentDepSet.add(moduleName)
         }
       }
     })

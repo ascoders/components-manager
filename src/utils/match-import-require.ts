@@ -1,0 +1,1 @@
+export default /(\bimport\s+(?:.+\s+from\s+)?)[\'"]([^"\']+)["\']|require\([\'"]([^"\']+)["\']\)/g
