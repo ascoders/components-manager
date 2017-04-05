@@ -1,12 +1,12 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "components-manager",
   "typings": "src/index.ts",
   "scripts": {
     "prepublish": "tsc"
   },
   "bin": {
-    "run-react": "built/src/index.js"
+    "components-manager": "built/src/index.js"
   },
   "devDependencies": {
     "@types/colors": "^1.1.2",
