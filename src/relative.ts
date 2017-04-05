@@ -33,7 +33,12 @@ export default (managerConfig: ManagerConfig, basePath: string) => {
 
           const importFullPath = path.join(process.cwd(), componentInfo.path)
           // 引用该组件的相对路径
-          const importRelativePath = path.relative(path.dirname(filePath), importFullPath)
+          let importRelativePath = path.relative(path.dirname(filePath), importFullPath)
+
+          // 如果开头不是 ./ 或 ../, 要加上 ./
+          if (!importRelativePath.startsWith('./') && !importRelativePath.startsWith('../')) {
+            importRelativePath = './' + importRelativePath
+          }
 
           if (importModule) {
             return _.trim(importBody) + ' ' + `\'${importRelativePath}\'`
