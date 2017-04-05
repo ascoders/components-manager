@@ -1,5 +1,5 @@
 {
-  "plugins": [
-    "transform-es2015-parameters"
+  "presets": [
+    "stage-0"
   ]
 }
