@@ -1,9 +1,9 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "name": "components-manager",
   "typings": "src/index.ts",
   "scripts": {
-    "prepublish": "tsc"
+    "prepublish": "tsc && babel built --out-dir built"
   },
   "bin": {
     "components-manager": "built/index.js"
@@ -12,6 +12,8 @@
     "@types/colors": "^1.1.2",
     "@types/node": "^7.0.12",
     "@types/semver": "^5.3.31",
+    "babel-cli": "^6.24.0",
+    "babel-plugin-transform-es2015-parameters": "^6.23.0",
     "typescript": "^2.2.2"
   },
   "dependencies": {
