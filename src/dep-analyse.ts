@@ -6,6 +6,9 @@ import { isJsFile } from './utils/js-suffix'
 import * as colors from 'colors'
 import matchImportRequire from './utils/match-import-require'
 
+// 默认版本号
+const defaultVersion = '0.0.1'
+
 /**
  * 对所有组件依赖分析，并更新组件的 package.json
  * 如果不存在 package.json 会创建
@@ -33,13 +36,16 @@ export default (managerConfig: ManagerConfig) => {
   managerConfig.components.forEach(component => {
     // 读取当前组件的 package.json
     const componentPackageJsonPath = path.join(process.cwd(), component.path, 'package.json')
-    if (!fs.existsSync(componentPackageJsonPath)) {
-      return
+    // 组件版本号
+    let version = defaultVersion
+
+    if (fs.existsSync(componentPackageJsonPath)) {
+      const componentPackageJson = JSON.parse(fs.readFileSync(componentPackageJsonPath).toString())
+      version = componentPackageJson.version
     }
-    const componentPackageJson = JSON.parse(fs.readFileSync(componentPackageJsonPath).toString())
 
     if (!versionMap.has(component.npm)) {
-      versionMap.set(component.npm, componentPackageJson.version)
+      versionMap.set(component.npm, version)
     }
   })
 
@@ -60,7 +66,7 @@ export default (managerConfig: ManagerConfig) => {
     } else {  // 没有 package.json
       // 设置默认的 package.json
       currentComponentPackageJson = {
-        version: '0.0.1',
+        version: defaultVersion,
         name: config.npm,
         dependencies: {}
       }
