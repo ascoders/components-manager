@@ -2,6 +2,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as colors from 'colors'
 import * as semver from 'semver'
+import * as prompt from 'prompt'
+import publishTable from './utils/publish-table'
+import * as formatJson from 'format-json'
 
 /**
  * 发布可选版本
@@ -16,6 +19,10 @@ interface PublishResult {
    * 发布级别
    */
   version: PublishVersion
+  /**
+   * 发布原因
+   */
+  reason: string
 }
 
 /**
@@ -57,12 +64,13 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
   })
 
   // 对某个包发布新版本号
-  function publishNewVersion(packageName: string, version: PublishVersion) {
+  function publishNewVersion(packageName: string, version: PublishVersion, reason: string) {
     switch (version) {
       case 'patch': // bug fix
         if (!publishResultMap.has(packageName)) {
           publishResultMap.set(packageName, {
-            version: version
+            version: version,
+            reason
           })
         } else {
           // 如果已经存在其他级别的发布版本，就用其他级别的，patch 优先级最低
@@ -71,40 +79,76 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
       case 'mirror': // 向下兼容的新功能
         if (!publishResultMap.has(packageName)) {
           publishResultMap.set(packageName, {
-            version: version
+            version: version,
+            reason
           })
         } else {
           // 如果已经存在发布版本是 patch，就改为 mirror，其他情况不考虑
           publishResultMap.get(packageName).version === 'patch'
           publishResultMap.set(packageName, {
-            version: version
+            version: version,
+            reason
           })
         }
         break
       case 'major': // 不兼容的改动
         // 直接将版本更新为 major  
         publishResultMap.set(packageName, {
-          version: version
+          version: version,
+          reason
         })
 
         // 找依赖它的组件，升级 patch 版本
         dependenceMap.forEach((dep, eachPackageName) => {
           if (dep.has(packageName)) {
             // 依赖了它，升级一个 patch 版本
-            publishNewVersion(eachPackageName, 'patch')
+            publishNewVersion(eachPackageName, 'patch', '依赖关联')
           }
         })
         break
     }
   }
 
+  // 遍历所有要发布的包，各自发布新版本  
   publishDemandMap.forEach((publishVersion, packageName) => {
-    publishNewVersion(packageName, publishVersion)
-    console.log(publishResultMap)
+    publishNewVersion(packageName, publishVersion, '主动发布')
   })
 
-  publishResultMap.forEach((publishVersion, packageName) => {
-    // const nextVersion = semver.inc(versionMap.get(packageName), publishVersion)
+  // 显示发布详情图标  
+  publishTable(() => {
+    const rows: Array<Array<string>> = []
+    Array.from(publishResultMap).forEach(([packageName, publishInfo], index) => {
+      const row: string[] = []
+      row.push(packageName)
+      row.push(publishInfo.reason)
+      row.push(publishInfo.version)
+      const nextVersion = semver.inc(versionMap.get(packageName), publishInfo.version)
+      row.push(nextVersion)
+      rows.push(row)
+    })
+    return rows
+  })
 
+  prompt.start()
+  prompt.get([{
+    name: 'canPublish',
+    description: '以上是最终发布信息, 确认发布吗? (true or false)',
+    message: '选择必须是 true or false 中的任意一个',
+    type: 'boolean',
+    required: true
+  }], (err: Error, result: any) => {
+    if (err || !result || !result.canPublish) {
+      return
+    }
+
+    publishResultMap.forEach((publishInfo, packageName) => {
+      const nextVersion = semver.inc(versionMap.get(packageName), publishInfo.version)
+      const componentInfo = managerConfig.components.find(component => component.npm === packageName)
+      const componentPath = path.join(process.cwd(), componentInfo.path)
+      const componentPackageJsonPath = path.join(componentPath, 'package.json')
+      const componentPackageJson = JSON.parse(fs.readFileSync(componentPackageJsonPath).toString())
+      componentPackageJson.version = nextVersion
+      fs.writeFileSync(componentPackageJsonPath, formatJson.plain(componentPackageJson))
+    })
   })
 }

@@ -20,10 +20,13 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.61",
+    "brain": "^0.7.0",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "format-json": "^1.0.3",
     "lodash": "^4.17.4",
-    "semver": "^5.3.0"
+    "prompt": "^1.0.0",
+    "semver": "^5.3.0",
+    "tty-table": "^2.2.5"
   }
 }

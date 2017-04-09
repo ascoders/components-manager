@@ -1,4 +1,6 @@
 declare module 'format-json'
+declare module 'prompt'
+declare module 'tty-table'
 
 declare interface ManagerConfig {
   /**
