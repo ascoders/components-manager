@@ -8,16 +8,20 @@ declare interface ManagerConfig {
    */
   components: Array<{
     /**
-     * 相对当前项目的路径
+     * 组件根目录的相对路径
      */
-    path: string
+    root: string
     /**
-     * npm 包名
+     * 组件的包名
      */
-    npm: string
+    name: string
     /**
      * git 仓库地址
      */
-    git: string
+    git?: string
+    /**
+    * 入口的相对路径（相对于根目录），默认为 ./（根目录）
+    */
+    main?: string
   }>
 }

@@ -15,6 +15,14 @@ const commander = require('commander')
 const packageJson = require('../package.json')
 const managerConfig: ManagerConfig = require(path.join(process.cwd(), 'components-manager.json'))
 
+// managerConfig 每一项做处理
+managerConfig.components = managerConfig.components.map(component => {
+  if (!component.main) {
+    component.main = './'
+  }
+  return component
+})
+
 commander.version(packageJson.version)
 
 commander.command('alias <file> <prototype>')

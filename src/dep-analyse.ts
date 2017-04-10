@@ -35,7 +35,7 @@ export default (managerConfig: ManagerConfig) => {
   // 从所有配置的组件中收集依赖
   managerConfig.components.forEach(component => {
     // 读取当前组件的 package.json
-    const componentPackageJsonPath = path.join(process.cwd(), component.path, 'package.json')
+    const componentPackageJsonPath = path.join(process.cwd(), component.root, 'package.json')
     // 组件版本号
     let version = defaultVersion
 
@@ -44,15 +44,15 @@ export default (managerConfig: ManagerConfig) => {
       version = componentPackageJson.version
     }
 
-    if (!versionMap.has(component.npm)) {
-      versionMap.set(component.npm, version)
+    if (!versionMap.has(component.name)) {
+      versionMap.set(component.name, version)
     }
   })
 
   // 配置每个组件的 package.json
   managerConfig.components.forEach(config => {
     // 当前组件的 package.json
-    const currentComponentPackageJsonPath = path.join(process.cwd(), config.path, 'package.json')
+    const currentComponentPackageJsonPath = path.join(process.cwd(), config.root, 'package.json')
     // 当前组件 package.json 内容
     let currentComponentPackageJson: any
 
@@ -67,7 +67,7 @@ export default (managerConfig: ManagerConfig) => {
       // 设置默认的 package.json
       currentComponentPackageJson = {
         version: defaultVersion,
-        name: config.npm,
+        name: config.name,
         dependencies: {}
       }
     }
@@ -76,7 +76,7 @@ export default (managerConfig: ManagerConfig) => {
     const currentComponentDepSet = new Set<string>()
 
     // 该组件目录下所有文件路径，将所有文件依赖的包暂存
-    const filePaths = walk(path.join(process.cwd(), config.path))
+    const filePaths = walk(path.join(process.cwd(), config.root))
     filePaths.forEach(filePath => {
       // 只读取指定 js 后缀的文件
       if (!isJsFile(filePath)) {
@@ -115,13 +115,13 @@ export default (managerConfig: ManagerConfig) => {
 
         currentComponentPackageJson.dependencies[depName] = versionMap.get(depName)
       } else {
-        console.log(colors.red(`${config.npm} 组件依赖的 ${depName} 不存在于根目录 package.json 或不在当前 components-manager.json 定义的包名中.`))
+        console.log(colors.red(`${config.name} 组件依赖的 ${depName} 不存在于根目录 package.json 或不在当前 components-manager.json 定义的包名中.`))
         process.exit(1)
       }
     })
 
     // 更新依赖 map
-    dependenceMap.set(config.npm, currentComponentDepMap)
+    dependenceMap.set(config.name, currentComponentDepMap)
 
     // 重新写入 package.json
     if (depHasChanged) {

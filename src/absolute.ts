@@ -6,15 +6,15 @@ import { isJsFile } from './utils/js-suffix'
 import matchImportRequire from './utils/match-import-require'
 
 /**
- * 将文件对 npm 引用改为 npm 包名
+ * 将引用改为包名
  */
 export default (managerConfig: ManagerConfig, basePath: string) => {
   const filePaths = walk(path.join(process.cwd(), basePath))
 
-  // 记录所有组件的绝对路径，包名
+  // 记录所有组件的绝对路径 -> 包名
   const absolutePathAndPackageName = new Map<string, string>()
   managerConfig.components.forEach(componentInfo => {
-    absolutePathAndPackageName.set(path.join(process.cwd(), componentInfo.path), componentInfo.npm)
+    absolutePathAndPackageName.set(path.join(process.cwd(), _.trimEnd(path.join(componentInfo.root, componentInfo.main), path.sep)), componentInfo.name)
   })
 
   filePaths.forEach(filePath => {

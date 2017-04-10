@@ -143,9 +143,8 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
 
     publishResultMap.forEach((publishInfo, packageName) => {
       const nextVersion = semver.inc(versionMap.get(packageName), publishInfo.version)
-      const componentInfo = managerConfig.components.find(component => component.npm === packageName)
-      const componentPath = path.join(process.cwd(), componentInfo.path)
-      const componentPackageJsonPath = path.join(componentPath, 'package.json')
+      const componentInfo = managerConfig.components.find(component => component.name === packageName)
+      const componentPackageJsonPath = path.join(process.cwd(), componentInfo.root, 'package.json')
       const componentPackageJson = JSON.parse(fs.readFileSync(componentPackageJsonPath).toString())
       componentPackageJson.version = nextVersion
       fs.writeFileSync(componentPackageJsonPath, formatJson.plain(componentPackageJson))

@@ -6,7 +6,7 @@ import { isJsFile } from './utils/js-suffix'
 import matchImportRequire from './utils/match-import-require'
 
 /**
- * 将文件对 npm 引用改为相对路径
+ * 将引用改为相对路径
  */
 export default (managerConfig: ManagerConfig, basePath: string) => {
   const filePaths = walk(path.join(process.cwd(), basePath))
@@ -27,11 +27,11 @@ export default (managerConfig: ManagerConfig, basePath: string) => {
       // 只处理非 ./ ../ 开头的
       if (!moduleName.startsWith('./') && !moduleName.startsWith('../')) {
         // 如果这个 npm 包存在于组件定义中，将其还原为相对路径
-        const componentInfo = managerConfig.components.find(componentInfo => componentInfo.npm === moduleName)
+        const componentInfo = managerConfig.components.find(componentInfo => componentInfo.name === moduleName)
         if (componentInfo) {
           hasChanged = true
 
-          const importFullPath = path.join(process.cwd(), componentInfo.path)
+          const importFullPath = path.join(process.cwd(), _.trimEnd(path.join(componentInfo.root, componentInfo.main)))
           // 引用该组件的相对路径
           let importRelativePath = path.relative(path.dirname(filePath), importFullPath)
 

@@ -24,9 +24,11 @@ function settingTsConfig(managerConfig: ManagerConfig) {
 
   const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath).toString())
 
+  tsConfig.baseUrl = './'
+
   // 配置 tsconfig.json
   managerConfig.components.forEach(config => {
-    _.set(tsConfig, `compilerOptions.paths.${config.npm}`, [config.path])
+    _.set(tsConfig, `compilerOptions.paths.${config.name}`, [_.trimEnd(path.join(config.root, config.main), path.sep)])
   })
 
   // 覆写 tsconfig.json
@@ -43,7 +45,7 @@ function settingCustomJsonFile(managerConfig: ManagerConfig, aliasFileName: stri
 
   // 配置自定义配置文件
   managerConfig.components.forEach(config => {
-    _.set(aliasFileContent, `${aliasPrototype}.${config.npm}`, config.path)
+    _.set(aliasFileContent, `${aliasPrototype}.${config.name}`, _.trimEnd(path.join(config.root, config.main), path.sep))
   })
 
   // 覆写自定义配置文件
