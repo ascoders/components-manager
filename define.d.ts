@@ -32,4 +32,8 @@ declare interface ManagerConfig {
      */
     builtPath?: string
   }>
+  /**
+   * 发布脚本，默认是 npm publish
+   */
+  publishCommander?: string
 }

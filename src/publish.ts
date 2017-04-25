@@ -6,6 +6,7 @@ import * as prompt from 'prompt'
 import publishTable from './utils/publish-table'
 import * as formatJson from 'format-json'
 import * as fse from 'fs-extra'
+import { execSync } from 'child_process'
 
 /**
  * 发布可选版本
@@ -174,6 +175,14 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
       fse.emptyDirSync(outputPath)
       // 拷贝
       fse.copySync(builtPath, outputPath)
+
+      // 执行发布脚本
+      if (!managerConfig.publishCommander) {
+        managerConfig.publishCommander = 'npm publish'
+      }
+      execSync(`${managerConfig.publishCommander} ${path.join(process.cwd(), componentConfig.root)}`, {
+        stdio: 'inherit'
+      })
     })
   })
 }
