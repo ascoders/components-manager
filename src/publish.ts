@@ -118,6 +118,13 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
   publishTable(() => {
     const rows: Array<Array<string>> = []
     Array.from(publishResultMap).forEach(([packageName, publishInfo], index) => {
+      // 如果发布的组件没有 builtPath，终止
+      const componentConfig = managerConfig.components.find(config => config.name === packageName)
+      if (!componentConfig.builtPath) {
+        console.log(colors.red(`${packageName} 没有配置 builtPath，因此不能发布，请检查 components-manager.json`))
+        process.exit(1)
+      }
+
       const row: string[] = []
       row.push(packageName)
       row.push(publishInfo.reason)
@@ -147,6 +154,8 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
       const componentPackageJsonPath = path.join(process.cwd(), componentInfo.root, 'package.json')
       const componentPackageJson = JSON.parse(fs.readFileSync(componentPackageJsonPath).toString())
       componentPackageJson.version = nextVersion
+
+      // 更新 package.json
       fs.writeFileSync(componentPackageJsonPath, formatJson.plain(componentPackageJson))
     })
   })

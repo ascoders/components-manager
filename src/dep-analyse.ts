@@ -51,6 +51,10 @@ export default (managerConfig: ManagerConfig) => {
 
   // 配置每个组件的 package.json
   managerConfig.components.forEach(config => {
+    if (!config.outputMain) {
+      config.outputMain = 'lib'
+    }
+
     // 当前组件的 package.json
     const currentComponentPackageJsonPath = path.join(process.cwd(), config.root, 'package.json')
     // 当前组件 package.json 内容
@@ -70,7 +74,7 @@ export default (managerConfig: ManagerConfig) => {
         name: config.name,
         dependencies: {},
         typings: config.main,
-        main: path.join(managerConfig.outputDirPath || 'lib', config.main)
+        main: config.outputMain
       }
     }
 
@@ -128,6 +132,20 @@ export default (managerConfig: ManagerConfig) => {
     // 重新写入 package.json
     if (depHasChanged) {
       fs.writeFileSync(currentComponentPackageJsonPath, formatJson.plain(currentComponentPackageJson))
+    }
+
+    // 如果没有 .gitignore，自动添加
+    const currentComponentGitIgnorePath = path.join(process.cwd(), config.root, '.gitignore')
+    if (!fs.existsSync(currentComponentGitIgnorePath)) {
+      const gitignore = `node_modules\n${config.outputMain}`
+      fs.writeFileSync(currentComponentGitIgnorePath, gitignore)
+    }
+
+    // 如果没有 .npmignore，自动添加
+    const currentComponentNpmIgnorePath = path.join(process.cwd(), config.root, '.npmignore')
+    if (!fs.existsSync(currentComponentNpmIgnorePath)) {
+      const npmignore = `node_modules`
+      fs.writeFileSync(currentComponentNpmIgnorePath, npmignore)
     }
   })
 
