@@ -166,7 +166,7 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
 
       // 把 builtPath 中文件拷贝到当前文件的 outputMain 文件夹
       const builtPath = path.join(process.cwd(), componentConfig.builtPath)
-      const outputPath = path.join(process.cwd(), componentConfig.outputDir)
+      const outputPath = path.join(process.cwd(), componentConfig.root, componentConfig.outputDir)
 
       // 确保 outputPath 文件夹已被创建
       fse.ensureDirSync(outputPath)
