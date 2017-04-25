@@ -24,4 +24,8 @@ declare interface ManagerConfig {
     */
     main?: string
   }>
+  /**
+   * 组件产出的目录
+   */
+  outputDirPath?: string
 }

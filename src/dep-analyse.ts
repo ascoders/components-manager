@@ -68,7 +68,9 @@ export default (managerConfig: ManagerConfig) => {
       currentComponentPackageJson = {
         version: defaultVersion,
         name: config.name,
-        dependencies: {}
+        dependencies: {},
+        typings: config.main,
+        main: path.join(managerConfig.outputDirPath || 'lib', config.main)
       }
     }
 
