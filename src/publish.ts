@@ -25,6 +25,19 @@ interface PublishResult {
    * 发布原因
    */
   reason: string
+  /**
+   * package.json 内容
+   */
+  packageJson: {
+    version: string
+    dependencies: {
+      [packageName: string]: string
+    }
+  }
+  /**
+   * package.json 路径
+   */
+  packageJsonPath: string
 }
 
 /**
@@ -67,12 +80,18 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
 
   // 对某个包发布新版本号
   function publishNewVersion(packageName: string, version: PublishVersion, reason: string) {
+    const componentConfig = managerConfig.components.find(config => config.name === packageName)
+    const componentPackageJsonPath = path.join(process.cwd(), componentConfig.root, 'package.json')
+    const componentPackageJson = JSON.parse(fs.readFileSync(componentPackageJsonPath).toString())
+
     switch (version) {
       case 'patch': // bug fix
         if (!publishResultMap.has(packageName)) {
           publishResultMap.set(packageName, {
             version: version,
-            reason
+            reason,
+            packageJson: componentPackageJson,
+            packageJsonPath: componentPackageJsonPath
           })
         } else {
           // 如果已经存在其他级别的发布版本，就用其他级别的，patch 优先级最低
@@ -82,14 +101,18 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         if (!publishResultMap.has(packageName)) {
           publishResultMap.set(packageName, {
             version: version,
-            reason
+            reason,
+            packageJson: componentPackageJson,
+            packageJsonPath: componentPackageJsonPath
           })
         } else {
           // 如果已经存在发布版本是 patch，就改为 mirror，其他情况不考虑
           publishResultMap.get(packageName).version === 'patch'
           publishResultMap.set(packageName, {
             version: version,
-            reason
+            reason,
+            packageJson: componentPackageJson,
+            packageJsonPath: componentPackageJsonPath
           })
         }
         break
@@ -97,7 +120,9 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         // 直接将版本更新为 major  
         publishResultMap.set(packageName, {
           version: version,
-          reason
+          reason,
+          packageJson: componentPackageJson,
+          packageJsonPath: componentPackageJsonPath
         })
 
         // 找依赖它的组件，升级 patch 版本
@@ -111,15 +136,30 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
     }
   }
 
-  // 遍历所有要发布的包，各自发布新版本  
+  // 遍历所有要发布的包，各自发布新版本，得到 publishResultMap
   publishDemandMap.forEach((publishVersion, packageName) => {
     publishNewVersion(packageName, publishVersion, '主动发布')
+  })
+
+  // 遍历发布结果，将所有要发布的包，将 packageJson 对象版本升级成最新
+  publishResultMap.forEach((publishInfo, packageName) => {
+    publishInfo.packageJson.version = semver.inc(versionMap.get(packageName), publishInfo.version)
+  })
+
+  // 遍历发布结果，将所有要发布的包，依赖版本升级成最新的
+  publishResultMap.forEach((publishInfo, packageName) => {
+    // 遍历所有要发布的包，如果有对其的依赖，依赖版本号升级为这个包最新发布的版本
+    publishResultMap.forEach(_publishInfo => {
+      if (_publishInfo.packageJson.dependencies && Object.keys(_publishInfo.packageJson.dependencies).find(depName => depName === packageName)) {
+        _publishInfo.packageJson.dependencies[packageName] = publishInfo.packageJson.version
+      }
+    })
   })
 
   // 显示发布详情图标  
   publishTable(() => {
     const rows: Array<Array<string>> = []
-    Array.from(publishResultMap).forEach(([packageName, publishInfo], index) => {
+    publishResultMap.forEach((publishInfo, packageName) => {
       // 如果发布的组件没有 builtPath，终止
       const componentConfig = managerConfig.components.find(config => config.name === packageName)
       if (!componentConfig.builtPath) {
@@ -151,14 +191,8 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
     }
 
     publishResultMap.forEach((publishInfo, packageName) => {
-      const nextVersion = semver.inc(versionMap.get(packageName), publishInfo.version)
-      const componentInfo = managerConfig.components.find(component => component.name === packageName)
-      const componentPackageJsonPath = path.join(process.cwd(), componentInfo.root, 'package.json')
-      const componentPackageJson = JSON.parse(fs.readFileSync(componentPackageJsonPath).toString())
-      componentPackageJson.version = nextVersion
-
       // 更新 package.json
-      fs.writeFileSync(componentPackageJsonPath, formatJson.plain(componentPackageJson))
+      fs.writeFileSync(publishInfo.packageJsonPath, formatJson.plain(publishInfo.packageJson))
 
       const componentConfig = managerConfig.components.find(config => config.name === packageName)
       if (!componentConfig.outputDir) {
