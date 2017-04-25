@@ -5,6 +5,7 @@ import * as semver from 'semver'
 import * as prompt from 'prompt'
 import publishTable from './utils/publish-table'
 import * as formatJson from 'format-json'
+import * as fse from 'fs-extra'
 
 /**
  * 发布可选版本
@@ -157,6 +158,22 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
 
       // 更新 package.json
       fs.writeFileSync(componentPackageJsonPath, formatJson.plain(componentPackageJson))
+
+      const componentConfig = managerConfig.components.find(config => config.name === packageName)
+      if (!componentConfig.outputDir) {
+        componentConfig.outputDir = 'lib'
+      }
+
+      // 把 builtPath 中文件拷贝到当前文件的 outputMain 文件夹
+      const builtPath = path.join(process.cwd(), componentConfig.builtPath)
+      const outputPath = path.join(process.cwd(), componentConfig.outputDir)
+
+      // 确保 outputPath 文件夹已被创建
+      fse.ensureDirSync(outputPath)
+      // 清空文件夹
+      fse.emptyDirSync(outputPath)
+      // 拷贝
+      fse.copySync(builtPath, outputPath)
     })
   })
 }

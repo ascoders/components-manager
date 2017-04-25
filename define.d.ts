@@ -20,13 +20,13 @@ declare interface ManagerConfig {
      */
     git?: string
     /**
-     * 代码引用的入口（相对路径于根目录），默认为 ./
+     * 代码引用的入口文件（相对路径于根目录），默认为 ./
      */
     main?: string
     /**
-     * 外部引用的入口（相对路径于根目录），默认为 ./lib
+     * 外部引用的入口文件夹，不用精确到文件，文件会自动从 main 中补全（相对路径于根目录），默认为 ./lib
      */
-    outputMain?: string
+    outputDir?: string
     /**
      * 编译产出路径，如果不设置，无法发布
      */

@@ -51,8 +51,8 @@ export default (managerConfig: ManagerConfig) => {
 
   // 配置每个组件的 package.json
   managerConfig.components.forEach(config => {
-    if (!config.outputMain) {
-      config.outputMain = 'lib'
+    if (!config.outputDir) {
+      config.outputDir = 'lib'
     }
 
     // 当前组件的 package.json
@@ -74,7 +74,7 @@ export default (managerConfig: ManagerConfig) => {
         name: config.name,
         dependencies: {},
         typings: config.main,
-        main: config.outputMain
+        main: path.join(config.outputDir, config.main)
       }
     }
 
@@ -137,7 +137,7 @@ export default (managerConfig: ManagerConfig) => {
     // 如果没有 .gitignore，自动添加
     const currentComponentGitIgnorePath = path.join(process.cwd(), config.root, '.gitignore')
     if (!fs.existsSync(currentComponentGitIgnorePath)) {
-      const gitignore = `node_modules\n${config.outputMain}`
+      const gitignore = `node_modules\n${config.outputDir}`
       fs.writeFileSync(currentComponentGitIgnorePath, gitignore)
     }
 
