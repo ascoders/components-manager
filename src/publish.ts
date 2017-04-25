@@ -156,22 +156,54 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
     })
   })
 
+  // 虚拟发布队列，数次遍历 publishResultMap，每次找到没有依赖本次发布组件的组件添加进去，直到所有组件被添加
+  const publishQueue: Array<PublishResult & { packageName: string }> = []
+  const resultSize = publishResultMap.size
+
+  while (publishQueue.length !== resultSize) {
+    publishResultMap.forEach((publishInfo, packageName) => {
+      // 如果没有依赖任何发布中的包，添加进去，同时删除自身
+      let used = false
+
+      Object.keys(publishInfo.packageJson.dependencies).forEach(depName => {
+        publishResultMap.forEach((_publishInfo, _packageName) => {
+          // 不是自身
+          if (_packageName === packageName) {
+            return
+          }
+
+          if (_packageName === depName) {
+            used = true
+          }
+        })
+      })
+
+
+      if (!used) {
+        // 添加到发布队列
+        publishQueue.push(Object.assign({}, publishInfo, { packageName }))
+        // 从 publishResultMap 中删除
+        publishResultMap.delete(packageName)
+      }
+    })
+  }
+
   // 显示发布详情图标  
   publishTable(() => {
     const rows: Array<Array<string>> = []
-    publishResultMap.forEach((publishInfo, packageName) => {
+    publishQueue.forEach(publishInfo => {
       // 如果发布的组件没有 builtPath，终止
-      const componentConfig = managerConfig.components.find(config => config.name === packageName)
+      const componentConfig = managerConfig.components.find(config => config.name === publishInfo.packageName)
       if (!componentConfig.builtPath) {
-        console.log(colors.red(`${packageName} 没有配置 builtPath，因此不能发布，请检查 components-manager.json`))
+        console.log(colors.red(`${publishInfo.packageName} 没有配置 builtPath，因此不能发布，请检查 components-manager.json`))
         process.exit(1)
       }
 
       const row: string[] = []
-      row.push(packageName)
+      row.push(publishInfo.packageName)
       row.push(publishInfo.reason)
       row.push(publishInfo.version)
-      const nextVersion = semver.inc(versionMap.get(packageName), publishInfo.version)
+      const nextVersion = semver.inc(versionMap.get(publishInfo.packageName), publishInfo.version)
       row.push(nextVersion)
       rows.push(row)
     })
@@ -190,11 +222,11 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
       return
     }
 
-    publishResultMap.forEach((publishInfo, packageName) => {
+    publishQueue.forEach(publishInfo => {
       // 更新 package.json
       fs.writeFileSync(publishInfo.packageJsonPath, formatJson.plain(publishInfo.packageJson))
 
-      const componentConfig = managerConfig.components.find(config => config.name === packageName)
+      const componentConfig = managerConfig.components.find(config => config.name === publishInfo.packageName)
       if (!componentConfig.outputDir) {
         componentConfig.outputDir = 'lib'
       }
