@@ -63,6 +63,9 @@ export default (managerConfig: ManagerConfig) => {
     // 当前组件的依赖列表
     const currentComponentDepMap = new Map<string, string>()
 
+    // 依赖是否有变化
+    let packagejsonChanged = false
+
     // 有 package.json
     if (fs.existsSync(currentComponentPackageJsonPath)) {
       // 读取当前组件 package.json
@@ -76,6 +79,9 @@ export default (managerConfig: ManagerConfig) => {
         typings: config.main,
         main: path.join(config.outputDir, config.main)
       }
+
+      // 既然新建了 package.json，说明 package.json 有变化
+      packagejsonChanged = true
     }
 
     // 当前组件依赖的第三方包名
@@ -102,9 +108,6 @@ export default (managerConfig: ManagerConfig) => {
       }
     })
 
-    // 依赖是否有变化
-    let depHasChanged = false
-
     // 将当前组件所有依赖放入 package.json
     currentComponentDepSet.forEach(depName => {
       // 忽略 nodejs 内部模块
@@ -115,8 +118,8 @@ export default (managerConfig: ManagerConfig) => {
       currentComponentDepMap.set(depName, versionMap.get(depName))
 
       if (versionMap.has(depName)) {
-        if (!depHasChanged && currentComponentPackageJson.dependencies[depName] !== versionMap.get(depName)) {
-          depHasChanged = true
+        if (!packagejsonChanged && currentComponentPackageJson.dependencies[depName] !== versionMap.get(depName)) {
+          packagejsonChanged = true
         }
 
         currentComponentPackageJson.dependencies[depName] = versionMap.get(depName)
@@ -130,7 +133,7 @@ export default (managerConfig: ManagerConfig) => {
     dependenceMap.set(config.name, currentComponentDepMap)
 
     // 重新写入 package.json
-    if (depHasChanged) {
+    if (packagejsonChanged) {
       fs.writeFileSync(currentComponentPackageJsonPath, formatJson.plain(currentComponentPackageJson))
     }
 
