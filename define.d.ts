@@ -28,7 +28,7 @@ declare interface ManagerConfig {
      */
     outputDir?: string
     /**
-     * 编译产出路径，如果不设置，无法发布
+     * 编译产出路径，如果不设置，说明不需要产出，可以直接发布
      */
     builtPath?: string
   }>

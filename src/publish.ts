@@ -194,10 +194,6 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
     publishQueue.forEach(publishInfo => {
       // 如果发布的组件没有 builtPath，终止
       const componentConfig = managerConfig.components.find(config => config.name === publishInfo.packageName)
-      if (!componentConfig.builtPath) {
-        console.log(colors.red(`${publishInfo.packageName} 没有配置 builtPath，因此不能发布，请检查 components-manager.json`))
-        process.exit(1)
-      }
 
       const row: string[] = []
       row.push(publishInfo.packageName)
@@ -231,16 +227,18 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         componentConfig.outputDir = 'lib'
       }
 
-      // 把 builtPath 中文件拷贝到当前文件的 outputMain 文件夹
-      const builtPath = path.join(process.cwd(), componentConfig.builtPath)
-      const outputPath = path.join(process.cwd(), componentConfig.root, componentConfig.outputDir)
+      if (componentConfig.builtPath) {
+        // 把 builtPath 中文件拷贝到当前文件的 outputMain 文件夹
+        const builtPath = path.join(process.cwd(), componentConfig.builtPath)
+        const outputPath = path.join(process.cwd(), componentConfig.root, componentConfig.outputDir)
 
-      // 确保 outputPath 文件夹已被创建
-      fse.ensureDirSync(outputPath)
-      // 清空文件夹
-      fse.emptyDirSync(outputPath)
-      // 拷贝
-      fse.copySync(builtPath, outputPath)
+        // 确保 outputPath 文件夹已被创建
+        fse.ensureDirSync(outputPath)
+        // 清空文件夹
+        fse.emptyDirSync(outputPath)
+        // 拷贝
+        fse.copySync(builtPath, outputPath)
+      }
 
       // 执行发布脚本
       if (!managerConfig.publishCommander) {
