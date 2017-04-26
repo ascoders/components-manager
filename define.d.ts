@@ -35,5 +35,9 @@ declare interface ManagerConfig {
   /**
    * 发布脚本，默认是 npm publish
    */
-  publishCommander?: string
+  publishCommand?: string
+  /**
+   * 所有组件都依赖的包
+   */
+  dependencies?: string[]
 }

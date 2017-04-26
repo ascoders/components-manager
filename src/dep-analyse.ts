@@ -108,8 +108,18 @@ export default (managerConfig: ManagerConfig) => {
       }
     })
 
+    // 遍历所有组件都要依赖的包，配置文件中的，添加到依赖文件中
+    managerConfig.dependencies && managerConfig.dependencies.forEach(depName => {
+      currentComponentDepSet.add(depName)
+    })
+
     // 将当前组件所有依赖放入 package.json
     currentComponentDepSet.forEach(depName => {
+      // 忽略自身
+      if (config.name === depName) {
+        return
+      }
+
       // 忽略 nodejs 内部模块
       if (['assert', 'zlib', 'fs', 'dns', 'http', 'http-req', 'http-res', 'http-client', 'http-server', 'https', 'net', 'dgram', 'url', 'crypto', 'querystring', 'buffer', 'child_process'].find(nodePackage => nodePackage === depName)) {
         return

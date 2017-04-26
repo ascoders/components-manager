@@ -241,10 +241,10 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
       }
 
       // 执行发布脚本
-      if (!managerConfig.publishCommander) {
-        managerConfig.publishCommander = 'npm publish'
+      if (!managerConfig.publishCommand) {
+        managerConfig.publishCommand = 'npm publish'
       }
-      execSync(`${managerConfig.publishCommander} ${path.join(process.cwd(), componentConfig.root)}`, {
+      execSync(`${managerConfig.publishCommand} ${path.join(process.cwd(), componentConfig.root)}`, {
         stdio: 'inherit'
       })
     })
