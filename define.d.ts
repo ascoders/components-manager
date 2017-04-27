@@ -31,6 +31,10 @@ declare interface ManagerConfig {
      * 编译产出路径，如果不设置，说明不需要产出，可以直接发布
      */
     builtPath?: string
+    /**
+     * 依赖分析忽略的目录
+     */
+    analyseIgnore?: string[]
   }>
   /**
    * 发布脚本，默认是 npm publish

@@ -90,6 +90,11 @@ export default (managerConfig: ManagerConfig) => {
     // 该组件目录下所有文件路径，将所有文件依赖的包暂存
     const filePaths = walk(path.join(process.cwd(), config.root))
     filePaths.forEach(filePath => {
+      // 不会分析 analyseIgnore 文件夹下的文件
+      if (config.analyseIgnore && config.analyseIgnore.some(ignorePath => filePath.startsWith(path.join(config.root, ignorePath)))) {
+        return
+      }
+
       // 只读取指定 js 后缀的文件
       if (!isJsFile(filePath)) {
         return
