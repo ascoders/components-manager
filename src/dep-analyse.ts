@@ -91,7 +91,12 @@ export default (managerConfig: ManagerConfig) => {
     const filePaths = walk(path.join(process.cwd(), config.root))
     filePaths.forEach(filePath => {
       // 不会分析 analyseIgnore 文件夹下的文件
-      if (config.analyseIgnore && config.analyseIgnore.some(ignorePath => filePath.startsWith(path.join(process.cwd(), config.root, config.analyseIgnore[0])))) {
+      if (config.analyseIgnore && config.analyseIgnore.some(ignorePath => filePath.startsWith(path.join(process.cwd(), config.root, ignorePath)))) {
+        return
+      }
+
+      // 不会分析 outputDir 文件夹下的文件
+      if (filePath.startsWith(path.join(process.cwd(), config.root, config.outputDir))) {
         return
       }
 
