@@ -9,6 +9,7 @@ import depAnalyse from './dep-analyse'
 import publish from './publish'
 import relative from './relative'
 import absolute from './absolute'
+import clean from './clean'
 
 const commander = require('commander')
 
@@ -56,6 +57,12 @@ commander.command('publish [packageName@<patch|mirror|major>...]')
     const { versionMap, dependenceMap } = depAnalyse(managerConfig)
     // 再发布
     publish(managerConfig, packageNames, versionMap, dependenceMap)
+  })
+
+commander.command('clean')
+  .description('清空组件的产出目录')
+  .action(() => {
+    clean(managerConfig)
   })
 
 commander.parse(process.argv)
