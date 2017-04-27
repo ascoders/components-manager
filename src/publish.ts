@@ -232,10 +232,10 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         const builtPath = path.join(process.cwd(), componentConfig.builtPath)
         const outputPath = path.join(process.cwd(), componentConfig.root, componentConfig.outputDir)
 
+        // 删除 outputPath 文件夹
+        fse.removeSync(outputPath)
         // 确保 outputPath 文件夹已被创建
         fse.ensureDirSync(outputPath)
-        // 清空文件夹
-        fse.emptyDirSync(outputPath)
         // 拷贝
         fse.copySync(builtPath, outputPath)
       }
