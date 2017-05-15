@@ -11,7 +11,7 @@ import { execSync } from 'child_process'
 /**
  * 发布可选版本
  */
-type PublishVersion = 'patch' | 'mirror' | 'major'
+type PublishVersion = 'patch' | 'minor' | 'major'
 
 /**
  * 发布结果信息
@@ -58,8 +58,8 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
     // 发布级别
     const publishVersion = packageStringSplit[packageStringSplit.length - 1] as PublishVersion
 
-    if (!['patch', 'mirror', 'major'].some(legalPublishVersion => publishVersion === legalPublishVersion)) {
-      console.log(colors.red(`${packageName} 发布的版本号必须为 patch mirror major 之一`))
+    if (!['patch', 'minor', 'major'].some(legalPublishVersion => publishVersion === legalPublishVersion)) {
+      console.log(colors.red(`${packageName} 发布的版本号必须为 patch minor major 之一`))
       process.exit(1)
     }
 
@@ -97,7 +97,7 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
           // 如果已经存在其他级别的发布版本，就用其他级别的，patch 优先级最低
         }
         break
-      case 'mirror': // 向下兼容的新功能
+      case 'minor': // 向下兼容的新功能
         if (!publishResultMap.has(packageName)) {
           publishResultMap.set(packageName, {
             version: version,
@@ -106,7 +106,7 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
             packageJsonPath: componentPackageJsonPath
           })
         } else {
-          // 如果已经存在发布版本是 patch，就改为 mirror，其他情况不考虑
+          // 如果已经存在发布版本是 patch，就改为 minor，其他情况不考虑
           publishResultMap.get(packageName).version === 'patch'
           publishResultMap.set(packageName, {
             version: version,
@@ -223,6 +223,7 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
       fs.writeFileSync(publishInfo.packageJsonPath, formatJson.plain(publishInfo.packageJson))
 
       const componentConfig = managerConfig.components.find(config => config.name === publishInfo.packageName)
+
       if (!componentConfig.outputDir) {
         componentConfig.outputDir = 'lib'
       }

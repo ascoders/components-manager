@@ -50,7 +50,7 @@ commander.command('dep-analyse')
     depAnalyse(managerConfig)
   })
 
-commander.command('publish [packageName@<patch|mirror|major>...]')
+commander.command('publish [packageName@<patch|minor|major>...]')
   .description('发布组件')
   .action((packageNames: string[]) => {
     // 先依赖分析
