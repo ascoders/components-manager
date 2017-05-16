@@ -4,7 +4,7 @@
   "typings": "src/index.ts",
   "scripts": {
     "babel": "babel built --out-dir built",
-    "prepublish": "tsc && babel built --out-dir built"
+    "prepublish": "rm -rf built && tsc && babel built --out-dir built"
   },
   "bin": {
     "components-manager": "built/index.js"
