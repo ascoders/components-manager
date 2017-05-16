@@ -6,7 +6,7 @@ npm install components-manager --dev
 
 # 快速入门
 
-在项目根目录添加以下配置文件：`components-manager.json` 或者 `components-manager.js`，使用 js 后缀可以使用回调函数。
+在项目根目录添加以下配置文件：`components-manager.json` 或者 `components-manager.config.js`，使用 js 后缀可以使用回调函数。
 
 配置文件类型是：`MangerConfig`:
 
