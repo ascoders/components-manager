@@ -14,7 +14,17 @@ import clean from './clean'
 const commander = require('commander')
 
 const packageJson = require('../package.json')
-const managerConfig: ManagerConfig = require(path.join(process.cwd(), 'components-manager.json'))
+
+let managerConfig: ManagerConfig
+
+const managerConfigJsonPath = path.join(process.cwd(), 'components-manager.json')
+const managerConfigJsPath = path.join(process.cwd(), 'components-manager.js')
+
+if (fs.existsSync(managerConfigJsonPath)) {
+  managerConfig = require(managerConfigJsonPath)
+} else if (fs.existsSync(managerConfigJsPath)) {
+  managerConfig = require(managerConfigJsPath)
+}
 
 // managerConfig 每一项做处理
 managerConfig.components = managerConfig.components.map(component => {

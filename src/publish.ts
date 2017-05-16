@@ -241,6 +241,12 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         fse.copySync(builtPath, outputPath)
       }
 
+      // 执行发布脚本之前，检测有没有 beforePublish
+      if (typeof managerConfig.beforePublish === "function") {
+        console.log(colors.green("正在执行 beforePublish 钩子"))
+        managerConfig.beforePublish(componentConfig)
+      }
+
       // 执行发布脚本
       if (!managerConfig.publishCommand) {
         managerConfig.publishCommand = 'npm publish'
