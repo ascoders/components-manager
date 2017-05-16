@@ -18,7 +18,7 @@ const packageJson = require('../package.json')
 let managerConfig: ManagerConfig
 
 const managerConfigJsonPath = path.join(process.cwd(), 'components-manager.json')
-const managerConfigJsPath = path.join(process.cwd(), 'components-manager.js')
+const managerConfigJsPath = path.join(process.cwd(), 'components-manager.config.js')
 
 if (fs.existsSync(managerConfigJsonPath)) {
   managerConfig = require(managerConfigJsonPath)
