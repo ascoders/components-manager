@@ -241,24 +241,33 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         fse.copySync(builtPath, outputPath)
       }
 
+      // 执行发布脚本
+      function runPublish() {
+        // 执行发布脚本
+        if (!managerConfig.publishCommand) {
+          managerConfig.publishCommand = 'npm publish'
+        }
+        execSync(`${managerConfig.publishCommand} ${path.join(process.cwd(), componentConfig.root)}`, {
+          stdio: 'inherit'
+        })
+      }
+
       // 执行发布脚本之前，检测有没有 beforePublish
       if (typeof managerConfig.beforePublish === "function") {
         console.log(colors.green("正在执行 beforePublish 钩子"))
-        const result = managerConfig.beforePublish(componentConfig)
-        // 如果返回了 false 就终止发布
-        if (result === false) {
-          console.log(colors.red("终止发布"))
-          process.exit(1)
-        }
-      }
 
-      // 执行发布脚本
-      if (!managerConfig.publishCommand) {
-        managerConfig.publishCommand = 'npm publish'
+        Promise.resolve(managerConfig.beforePublish(componentConfig)).then(result => {
+          // 如果返回了 false 就终止发布
+          if (result === false) {
+            console.log(colors.red("终止发布"))
+            process.exit(1)
+          }
+
+          runPublish()
+        })
+      } else {
+        runPublish()
       }
-      execSync(`${managerConfig.publishCommand} ${path.join(process.cwd(), componentConfig.root)}`, {
-        stdio: 'inherit'
-      })
     })
   })
 }
