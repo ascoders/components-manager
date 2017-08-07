@@ -18,7 +18,7 @@ declare interface ManagerConfig {
   /**
    * 发布前的回调，【仅支持 js 配置文件】
    */
-  beforePublish?: (componentInfo?: ComponentInfo) => void | boolean | Promise<boolean>
+  beforePublish?: (componentInfo?: ComponentInfo) => Promise<boolean>
 }
 
 declare interface ComponentInfo {

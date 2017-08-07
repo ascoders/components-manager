@@ -36,7 +36,7 @@ managerConfig.components = managerConfig.components.map(component => {
 
 commander.version(packageJson.version)
 
-commander.command('alias <file> <prototype>')
+commander.command('alias [file] [prototype]')
   .description('更新 alias，包括 tsconfig.json，也支持自定义文件、自定义字段，当 components-manager.json 更新时执行')
   .action((file: string, prototype: string) => {
     alias(managerConfig, file, prototype)

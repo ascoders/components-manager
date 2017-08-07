@@ -8,7 +8,10 @@ import * as _ from 'lodash'
  */
 export default (managerConfig: ManagerConfig, aliasFileName: string, aliasPrototype = 'alias') => {
   settingTsConfig(managerConfig)
-  settingCustomJsonFile(managerConfig, aliasFileName, aliasPrototype)
+
+  if (aliasFileName && aliasPrototype) {
+    settingCustomJsonFile(managerConfig, aliasFileName, aliasPrototype)
+  }
 }
 
 /**
