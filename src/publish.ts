@@ -192,7 +192,6 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
   publishTable(() => {
     const rows: Array<Array<string>> = []
     publishQueue.forEach(publishInfo => {
-      // 如果发布的组件没有 builtPath，终止
       const componentConfig = managerConfig.components.find(config => config.name === publishInfo.packageName)
 
       const row: string[] = []
@@ -228,17 +227,14 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         componentConfig.outputDir = 'lib'
       }
 
-      if (componentConfig.builtPath) {
-        // 把 builtPath 中文件拷贝到当前文件的 outputMain 文件夹
-        const builtPath = path.join(process.cwd(), componentConfig.builtPath)
-        const outputPath = path.join(process.cwd(), componentConfig.root, componentConfig.outputDir)
-
-        // 删除 outputPath 文件夹
-        fse.removeSync(outputPath)
-        // 确保 outputPath 文件夹已被创建
-        fse.ensureDirSync(outputPath)
-        // 拷贝
-        fse.copySync(builtPath, outputPath)
+      if (managerConfig.build) {
+        // 在当前组件目录执行 build
+        console.log(colors.green(`${componentConfig.name} 正在编译`))
+        execSync(managerConfig.build, {
+          cwd: path.join(process.cwd(), componentConfig.root),
+          stdio: 'inherit'
+        })
+        console.log(colors.green(`${componentConfig.name} 编译完成`))
       }
 
       // 执行发布脚本

@@ -6,11 +6,11 @@ export default {
     },
     {
       root: "./src/dom/dom-utils",
-      name: "gaea-dom-utils",
-      builtPath: "./lib-npm/dom/dom-utils"
+      name: "gaea-dom-utils"
     }
   ],
   publishCommand: "cnpm publish",
+  build: "card build",
   dependencies: [
     "gaea-style"
   ],
