@@ -50,4 +50,8 @@ declare interface ComponentInfo {
    * 依赖分析忽略的目录
    */
   analyseIgnore?: string[]
+  /**
+   * 已有产出的路径
+   */
+  builtPath?: string
 }

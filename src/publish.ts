@@ -243,6 +243,20 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
         if (!managerConfig.publishCommand) {
           managerConfig.publishCommand = 'npm publish'
         }
+
+        // 把 builtPath 中文件拷贝到当前文件的 outputMain 文件夹
+        const builtPath = path.join(process.cwd(), componentConfig.builtPath)
+        const outputPath = path.join(process.cwd(), path.join(componentConfig.root, componentConfig.outputDir || 'lib'))
+
+        // 确保 outputPath 文件夹已被创建
+        fse.ensureDirSync(outputPath)
+        // 清空文件夹
+        fse.emptyDirSync(outputPath)
+        // 拷贝
+        fse.copySync(builtPath, outputPath)
+
+        console.log(123, builtPath, outputPath)
+
         execSync(`${managerConfig.publishCommand} ${path.join(process.cwd(), componentConfig.root)}`, {
           stdio: 'inherit'
         })
@@ -264,6 +278,8 @@ export default (managerConfig: ManagerConfig, packageStrings: string[], versionM
       } else {
         runPublish()
       }
+
+
     })
   })
 }
